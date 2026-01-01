@@ -18,10 +18,12 @@ const Services = () => {
             });
         }, { threshold: 0.1 });
 
-        document.querySelectorAll('.animate-on-scroll').forEach((el) => observer.observe(el));
+        setTimeout(() => {
+            document.querySelectorAll('.animate-on-scroll').forEach((el) => observer.observe(el));
+        }, 100);
 
         return () => observer.disconnect();
-    }, []);
+    }, [services]);
 
     return (
         <>

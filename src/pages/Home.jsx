@@ -19,10 +19,13 @@ const Home = () => {
             });
         }, { threshold: 0.1 });
 
-        document.querySelectorAll('.animate-on-scroll').forEach((el) => observer.observe(el));
+        // Small delay to ensure DOM is ready after data update
+        setTimeout(() => {
+            document.querySelectorAll('.animate-on-scroll').forEach((el) => observer.observe(el));
+        }, 100);
 
         return () => observer.disconnect();
-    }, []);
+    }, [services]);
 
     const phoneNumber = "+97471129272";
     const displayPhone = "+974 7112 9272";
