@@ -193,32 +193,70 @@
     /* WhatsApp Green on Hover */
 }
 
+/* Mobile Actions Container */
+.mobile-actions {
+    display: none;
+    align-items: center;
+    gap: 15px;
+}
+
+@media (max-width: 1024px) {
+    .header-actions {
+        display: none;
+    }
+
+    .mobile-actions {
+        display: flex;
+    }
+
+    .logo img {
+        height: 60px !important;
+        /* Smaller logo on mobile */
+    }
+
+    .header {
+        height: 70px;
+        /* Slimmer header on mobile */
+    }
+
+    .header.scrolled {
+        height: 65px;
+    }
+}
+
+/* Mobile Call Icon Button */
+.mobile-call-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #f8fafc;
+    color: #0A182E;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.mobile-call-icon:active {
+    background: #D4AF37;
+    color: #fff;
+    border-color: #D4AF37;
+}
+
 /* Mobile Toggle */
 .mobile-toggle {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
     background: none;
     border: none;
     color: #0A182E;
-    /* Dark Icon */
     padding: 0;
+    width: 40px;
+    height: 40px;
     z-index: 1001;
-}
-
-@media (min-width: 1024px) {
-    .mobile-toggle {
-        display: none;
-    }
-
-    .header-actions {
-        display: flex;
-    }
-}
-
-@media (max-width: 1023px) {
-    .header-actions {
-        display: none;
-    }
 }
 
 /* Mobile Drawer Overlay */
@@ -227,14 +265,11 @@
     top: 0;
     left: 0;
     width: 100vw;
-    /* Use vw mostly to be safe */
     height: 100dvh;
-    /* Dynamic viewport height for mobile browsers */
-    background: rgba(10, 24, 46, 0.98);
-    /* Deep Navy, almost solid */
+    background: #0A182E;
+    /* Solid Navy */
     z-index: 1050;
     transform: translateX(100%);
-    /* Slide from right */
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
@@ -249,12 +284,19 @@
 /* Close Button (Mobile) */
 .mobile-close-btn {
     position: absolute;
-    top: 30px;
+    top: 20px;
     right: 20px;
-    background: none;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
     border: none;
     color: #FFFFFF;
     cursor: pointer;
+    display: flex;
+    /* Centering */
+    align-items: center;
+    justify-content: center;
 }
 
 /* Mobile Nav List */
@@ -264,26 +306,25 @@
     text-align: center;
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    gap: 24px;
     margin-bottom: 60px;
-    /* Space for footer */
 }
 
 .mobile-nav-link {
     font-family: var(--font-heading);
-    font-size: 24px;
-    font-weight: 700;
-    color: #FFFFFF;
+    font-size: 20px;
+    /* Slightly smaller for better fit */
+    font-weight: 600;
+    color: #E2E8F0;
     text-decoration: none;
     opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.4s ease, transform 0.4s ease;
+    transform: translateY(15px);
+    transition: opacity 0.4s ease, transform 0.4s ease, color 0.2s;
 }
 
 .mobile-drawer-overlay.open .mobile-nav-link {
     opacity: 1;
     transform: translateY(0);
-    /* Delays handled by nth-child in loop ideally or CSS */
 }
 
 .mobile-drawer-overlay.open .mobile-nav-list li:nth-child(1) .mobile-nav-link {
@@ -306,38 +347,38 @@
     transition-delay: 0.3s;
 }
 
-.mobile-nav-link.active {
-    color: var(--color-accent, #D4AF37);
+.mobile-nav-link.active,
+.mobile-nav-link:active {
+    color: #D4AF37;
 }
 
-/* Mobile Footer Strip */
+/* Mobile Footer Strip inside Drawer */
 .mobile-footer {
     position: absolute;
     bottom: 0;
     width: 100%;
-    background: rgba(0, 0, 0, 0.2);
-    padding: 30px 20px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .mobile-contact-strip {
     display: flex;
-    flex-direction: column;
-    gap: 15px;
-    align-items: center;
-    color: #E2E8F0;
-    font-size: 16px;
+    justify-content: center;
+    gap: 20px;
+    color: #94A3B8;
+    font-size: 14px;
 }
 
 .mobile-phone-item,
 .mobile-whatsapp-item {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     color: inherit;
-    /* Inherit white */
     text-decoration: none;
 }
 

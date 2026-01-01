@@ -126,7 +126,8 @@ button {
 
 @media (max-width: 768px) {
   .section {
-    padding: var(--section-padding-mobile) 0;
+    padding: 60px 0;
+    /* Reduced from 80/var to 60 for better mobile density */
   }
 }
 

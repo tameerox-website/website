@@ -109,15 +109,20 @@ const Header = () => {
                     </a>
                 </div>
 
-                {/* Mobile Toggle */}
-                <button
-                    className="mobile-toggle"
-                    onClick={toggleMenu}
-                    aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-                    aria-expanded={isMenuOpen}
-                >
-                    {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
-                </button>
+                {/* Mobile Actions (Visible only on < 1024px) */}
+                <div className="mobile-actions">
+                    <a href={`tel:${phoneNumber}`} className="mobile-call-icon" aria-label="Call Now">
+                        <Phone size={20} />
+                    </a>
+                    <button
+                        className="mobile-toggle"
+                        onClick={toggleMenu}
+                        aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+                        aria-expanded={isMenuOpen}
+                    >
+                        {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                    </button>
+                </div>
             </div>
 
             {/* Mobile Drawer */}
