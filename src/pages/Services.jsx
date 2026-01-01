@@ -40,107 +40,44 @@ const Services = () => {
 
 
             {/* Services Grid Section */}
-            <div className="section" style={{ background: '#fff' }} id="services-grid">
+            <div className="section services-section" id="services-grid">
                 <div className="container">
-                    <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))',
-                        gap: '30px',
-                        margin: '0 auto'
-                    }}>
+                    <div className="services-grid-layout">
                         {services.map((service, index) => (
-                            <div
+                            <Link
+                                to={`/services/${service.slug}`}
                                 key={service.id}
-                                className="animate-on-scroll"
-                                style={{
-                                    background: '#fff',
-                                    border: '1px solid #E5E7EB',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    transition: 'all 0.4s ease',
-                                    animationDelay: `${index * 0.1}s`,
-                                    position: 'relative',
-                                    overflow: 'hidden'
-                                }}
+                                className="service-card-luxury animate-on-scroll"
+                                style={{ animationDelay: `${index * 0.05}s` }}
                             >
-                                {/* Image Area */}
-                                <div style={{ height: '220px', overflow: 'hidden', position: 'relative' }}>
-                                    <div style={{
-                                        position: 'absolute',
-                                        top: 0, left: 0, width: '100%', height: '100%',
-                                        background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)',
-                                        zIndex: 1
-                                    }}></div>
-                                    <img
-                                        src={service.image}
-                                        alt={service.title}
-                                        style={{
-                                            width: '100%',
-                                            height: '100%',
-                                            objectFit: 'cover',
-                                            transition: 'transform 0.6s ease'
-                                        }}
-                                        onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
-                                        onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                                    />
-                                    <div style={{
-                                        position: 'absolute',
-                                        bottom: '15px',
-                                        left: '20px',
-                                        zIndex: 2,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '10px'
-                                    }}>
-                                        <div style={{ background: 'var(--color-accent)', padding: '8px', borderRadius: '4px' }}>
-                                            {(() => {
-                                                const Icon = iconMap[service.iconName];
-                                                return Icon ? <Icon size={20} color="#0A182E" /> : null;
-                                            })()}
-                                        </div>
+                                <div className="service-content">
+                                    <div className="service-icon-box">
+                                        {(() => {
+                                            const Icon = iconMap[service.iconName];
+                                            return Icon ? <Icon size={28} strokeWidth={1.5} /> : null;
+                                        })()}
                                     </div>
-                                </div>
+                                    <h3>{service.title}</h3>
+                                    <p>{service.description}</p>
 
-                                {/* Content Area */}
-                                <div style={{ padding: '25px', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                                    <h3 style={{ fontSize: '20px', marginBottom: '10px', color: 'var(--color-primary)' }}>{service.title}</h3>
-                                    <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '20px', lineHeight: '1.6' }}>
-                                        {service.description}
-                                    </p>
-
-                                    <div style={{ marginTop: 'auto' }}>
-                                        <div style={{ borderTop: '1px solid #f3f4f6', paddingTop: '15px', marginBottom: '20px' }}>
-                                            <span style={{ fontSize: '12px', fontWeight: '700', color: '#9CA3AF', textTransform: 'uppercase', display: 'block', marginBottom: '10px' }}>Key Capabilities</span>
-                                            <ul style={{ listStyle: 'none', padding: 0 }}>
-                                                {service.scope.slice(0, 4).map((scopeItem, i) => (
-                                                    <li key={i} style={{ fontSize: '13px', color: '#4B5563', marginBottom: '6px', display: 'flex', alignItems: 'start', gap: '8px' }}>
-                                                        <Check size={14} color="var(--color-accent)" style={{ marginTop: '3px', flexShrink: 0 }} />
+                                    <div style={{ marginTop: 'auto', width: '100%' }}>
+                                        <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '15px', marginBottom: '15px' }}>
+                                            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                                                {service.scope.slice(0, 3).map((scopeItem, i) => (
+                                                    <li key={i} style={{ fontSize: '13px', color: '#64748B', marginBottom: '6px', display: 'flex', alignItems: 'start', gap: '8px' }}>
+                                                        <Check size={14} color="#D4AF37" style={{ marginTop: '3px', flexShrink: 0 }} />
                                                         {scopeItem}
                                                     </li>
                                                 ))}
                                             </ul>
                                         </div>
 
-                                        <Link
-                                            to={`/services/${service.slug}`}
-                                            className="btn-outline"
-                                            style={{
-                                                width: '100%',
-                                                display: 'flex',
-                                                justifyContent: 'center',
-                                                padding: '12px',
-                                                fontSize: '13px',
-                                                border: '1px solid #E5E7EB',
-                                                color: 'var(--color-primary)'
-                                            }}
-                                            onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--color-accent)'; e.currentTarget.style.background = 'var(--color-accent)'; e.currentTarget.style.color = '#fff'; }}
-                                            onMouseOut={(e) => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--color-primary)'; }}
-                                        >
-                                            View Full Details <ArrowRight size={16} style={{ marginLeft: '8px' }} />
-                                        </Link>
+                                        <span className="service-link-arrow">
+                                            View Details <ArrowRight size={14} />
+                                        </span>
                                     </div>
                                 </div>
-                            </div>
+                            </Link>
                         ))}
                     </div>
                 </div>
