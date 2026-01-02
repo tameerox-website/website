@@ -54,11 +54,21 @@ export const DataProvider = ({ children }) => {
             // 4. Handle Empty DB (Auto-Seed logic for first run)
             if (servicesData && servicesData.length > 0) {
                 // Map snake_case to camelCase for services
-                const mappedServices = servicesData.map(s => ({
-                    ...s,
-                    iconName: s.icon_name, // Map back
-                    fullDescription: s.full_description // Map back
-                }));
+                // Map snake_case to camelCase for services and merge local data for new fields
+                const mappedServices = servicesData.map(s => {
+                    const localService = initialServices.find(is => is.id === s.id) || {};
+                    return {
+                        ...s,
+                        iconName: s.icon_name, // Map back
+                        fullDescription: s.full_description, // Map back
+                        scope: s.scope || localService.scope || [], // Ensure scope is always an array
+                        // Merge local data if DB column is missing or null
+                        projectTypes: s.project_types || localService.projectTypes || [],
+                        uniqueSellingPoints: s.unique_selling_points || localService.uniqueSellingPoints || [],
+                        // Prefer local image if DB has generic placeholder, or use DB if custom
+                        image: (s.image && s.image !== '/assets/hero-home.png') ? s.image : (localService.image || s.image)
+                    };
+                });
                 setServices(mappedServices);
             } else {
                 console.log("No services found in DB. Seeding...");
@@ -66,7 +76,13 @@ export const DataProvider = ({ children }) => {
             }
 
             if (projectsData && projectsData.length > 0) {
-                setProjects(projectsData);
+                // Map snake_case to camelCase if necessary
+                const mappedProjects = projectsData.map(p => ({
+                    ...p,
+                    caseStudyLink: p.case_study_link || p.caseStudyLink,
+                    progress: p.progress || 0
+                }));
+                setProjects(mappedProjects);
             } else {
                 console.log("No projects found in DB. Seeding...");
                 await seedProjects();
@@ -88,11 +104,19 @@ export const DataProvider = ({ children }) => {
             description: s.description,
             full_description: s.fullDescription,
             scope: s.scope,
+            project_types: s.projectTypes,
+            unique_selling_points: s.uniqueSellingPoints,
             image: s.image
         }));
         const { data, error } = await supabase.from('services').insert(payload).select();
         if (!error && data) {
-            const mapped = data.map(s => ({ ...s, iconName: s.icon_name, fullDescription: s.full_description }));
+            const mapped = data.map(s => ({
+                ...s,
+                iconName: s.icon_name,
+                fullDescription: s.full_description,
+                projectTypes: s.project_types,
+                uniqueSellingPoints: s.unique_selling_points
+            }));
             setServices(mapped);
         }
     };
@@ -101,8 +125,17 @@ export const DataProvider = ({ children }) => {
         const payload = initialProjects.map(p => ({
             title: p.title,
             category: p.category,
+            status: p.status,
+            client: p.client,
+            year: p.year,
+            duration: p.duration,
+            tags: p.tags,
             image: p.image,
-            description: p.description
+            description: p.description,
+            image: p.image,
+            description: p.description,
+            case_study_link: p.caseStudyLink,
+            progress: p.progress || 0
         }));
         const { data, error } = await supabase.from('projects').insert(payload).select();
         if (!error && data) setProjects(data);
@@ -114,8 +147,18 @@ export const DataProvider = ({ children }) => {
         const cleanProject = {
             title: project.title,
             category: project.category,
+            status: project.status || 'Ongoing',
+            client: project.client || '',
+            year: project.year || new Date().getFullYear().toString(),
+            duration: project.duration || '',
+            tags: project.tags || [],
             image: project.image,
-            description: project.description
+            description: project.description,
+            tags: project.tags || [],
+            image: project.image,
+            description: project.description,
+            case_study_link: project.caseStudyLink || '',
+            progress: project.progress || 0
         };
         const { data, error } = await supabase.from('projects').insert([cleanProject]).select();
         if (!error && data) {
@@ -129,8 +172,16 @@ export const DataProvider = ({ children }) => {
         const cleanProject = {
             title: updatedProject.title,
             category: updatedProject.category,
+            status: updatedProject.status,
+            client: updatedProject.client,
+            year: updatedProject.year,
+            duration: updatedProject.duration,
+            tags: updatedProject.tags,
             image: updatedProject.image,
-            description: updatedProject.description
+            description: updatedProject.description,
+            description: updatedProject.description,
+            case_study_link: updatedProject.caseStudyLink,
+            progress: updatedProject.progress
         };
         const { error } = await supabase.from('projects').update(cleanProject).eq('id', id);
         if (!error) {
@@ -155,11 +206,19 @@ export const DataProvider = ({ children }) => {
             description: service.description,
             full_description: service.fullDescription,
             scope: service.scope || [],
+            project_types: service.projectTypes || [],
+            unique_selling_points: service.uniqueSellingPoints || [],
             image: service.image
         };
         const { data, error } = await supabase.from('services').insert([cleanService]).select();
         if (!error && data) {
-            const mapped = { ...data[0], iconName: data[0].icon_name, fullDescription: data[0].full_description };
+            const mapped = {
+                ...data[0],
+                iconName: data[0].icon_name,
+                fullDescription: data[0].full_description,
+                projectTypes: data[0].project_types,
+                uniqueSellingPoints: data[0].unique_selling_points
+            };
             setServices(prev => [...prev, mapped]);
         }
     };
@@ -172,6 +231,8 @@ export const DataProvider = ({ children }) => {
             description: updatedService.description,
             full_description: updatedService.fullDescription,
             scope: updatedService.scope,
+            project_types: updatedService.projectTypes,
+            unique_selling_points: updatedService.uniqueSellingPoints,
             image: updatedService.image
         };
         const { error } = await supabase.from('services').update(cleanService).eq('id', id);

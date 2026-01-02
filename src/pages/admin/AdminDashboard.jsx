@@ -1,429 +1,205 @@
 import React, { useState } from 'react';
-import { useData } from '../../contexts/DataContext';
-import { Trash, Edit, Plus, X, Save, Lock, Upload, MinusCircle, PlusCircle } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
-import { iconMap } from '../../data/data';
+import { Lock, LayoutDashboard, Briefcase, Wrench, Users, MessageSquare } from 'lucide-react';
+import { useData } from '../../contexts/DataContext';
+
+import ProjectsManager from '../../components/admin/ProjectsManager';
+import ServicesManager from '../../components/admin/ServicesManager';
+import LeadershipManager from '../../components/admin/LeadershipManager';
+import LeadsManager from '../../components/admin/LeadsManager'; // New component
+import { Skeleton } from '../../components/ui/Skeleton';
 
 const AdminDashboard = () => {
-    const { services, projects, siteContent, addProject, updateProject, deleteProject, addService, updateService, deleteService, updateSiteContent } = useData();
+    const { projects, services } = useData();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [password, setPassword] = useState('');
-    const [activeTab, setActiveTab] = useState('projects'); // 'projects', 'services', 'leadership'
-    const [editingItem, setEditingItem] = useState(null); // Item being edited or new item
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [activeTab, setActiveTab] = useState('dashboard');
 
-    // CEO Form State
-    const [ceoForm, setCeoForm] = useState({
-        name: '',
-        title: '',
-        bio: '',
-        image: ''
-    });
-
-    // Populate CEO Form when data loads
-    React.useEffect(() => {
-        if (siteContent && siteContent['ceo_section']) {
-            setCeoForm(siteContent['ceo_section']);
-        }
-    }, [siteContent]);
-
-    // Simple auth check
+    // Simple auth chec
     const handleLogin = (e) => {
         e.preventDefault();
-        if (password === 'admin123') { // Simple hardcoded password for MVP
+        if (password === 'admin123') {
             setIsAuthenticated(true);
         } else {
             alert('Incorrect Password');
         }
     };
 
-    const openModal = (item = null) => {
-        // Deep copy to facilitate nested array editing like 'scope'
-        const initialItem = item ? JSON.parse(JSON.stringify(item)) : {};
-        if (!initialItem.scope) initialItem.scope = [];
-        setEditingItem(initialItem);
-        setIsModalOpen(true);
-    };
-
-    const closeModal = () => {
-        setEditingItem(null);
-        setIsModalOpen(false);
-    };
-
-    const handleSave = async (e) => {
-        e.preventDefault();
-        if (activeTab === 'projects') {
-            if (editingItem.id) {
-                await updateProject(editingItem.id, editingItem);
-            } else {
-                await addProject(editingItem);
-            }
-            closeModal();
-        } else if (activeTab === 'services') {
-            if (editingItem.id) {
-                await updateService(editingItem.id, editingItem);
-            } else {
-                await addService(editingItem);
-            }
-            closeModal();
-        }
-    };
-
-    const handleSaveCEO = async (e) => {
-        e.preventDefault();
-        await updateSiteContent('ceo_section', ceoForm);
-    };
-
-    // Helper for managing scope array
-    const handleScopeChange = (index, value) => {
-        const newScope = [...editingItem.scope];
-        newScope[index] = value;
-        setEditingItem({ ...editingItem, scope: newScope });
-    };
-
-    const addScopeItem = () => {
-        setEditingItem({ ...editingItem, scope: [...editingItem.scope, ''] });
-    };
-
-    const removeScopeItem = (index) => {
-        const newScope = editingItem.scope.filter((_, i) => i !== index);
-        setEditingItem({ ...editingItem, scope: newScope });
-    };
-
     if (!isAuthenticated) {
         return (
             <div style={{
-                height: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
+                height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#f7fafc'
             }}>
                 <Helmet><title>Admin Login</title></Helmet>
-                <div style={{ padding: '40px', border: '1px solid #ddd', borderRadius: '8px', background: '#fff' }}>
-                    <h2 style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <Lock /> Admin Access
+                <div style={{ padding: '40px', borderRadius: '12px', background: '#fff', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', width: '350px' }}>
+                    <h2 style={{ marginBottom: '25px', display: 'flex', alignItems: 'center', gap: '10px', color: '#2d3748', justifyContent: 'center' }}>
+                        <Lock color="var(--color-primary)" /> Admin Portal
                     </h2>
-                    <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                    <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                         <input
                             type="password"
                             placeholder="Enter Password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            style={{ padding: '10px', fontSize: '16px', width: '250px' }}
+                            style={{ padding: '12px', fontSize: '16px', borderRadius: '6px', border: '1px solid #e2e8f0', outline: 'none' }}
                         />
-                        <button type="submit" className="btn btn-primary">Login</button>
+                        <button type="submit" className="btn btn-primary" style={{ justifyContent: 'center', padding: '12px' }}>Login</button>
                     </form>
                 </div>
             </div>
         );
     }
 
+    // Sidebar Items
+    const navItems = [
+        { id: 'dashboard', label: 'Overview', icon: LayoutDashboard },
+        { id: 'projects', label: 'Projects', icon: Briefcase },
+        { id: 'services', label: 'Services', icon: Wrench },
+        { id: 'leads', label: 'Inquiries', icon: MessageSquare },
+        { id: 'leadership', label: 'Leadership', icon: Users },
+    ];
+
     return (
-        <div className="container" style={{ padding: '40px 20px' }}>
+        <div style={{ display: 'flex', minHeight: '100vh', background: '#f7fafc' }}>
             <Helmet><title>Dashboard - Tameerox Admin</title></Helmet>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-                <h1 style={{ margin: 0 }}>Admin Dashboard</h1>
-                <button
-                    className="btn btn-outline"
-                    onClick={() => setIsAuthenticated(false)}
-                >
-                    Logout
-                </button>
-            </div>
+            {/* Sidebar */}
+            <div style={{
+                width: '260px', background: '#1a202c', color: '#fff', display: 'flex', flexDirection: 'column',
+                position: 'fixed', top: 0, bottom: 0, left: 0, zIndex: 100
+            }}>
+                <div style={{ padding: '30px 20px', borderBottom: '1px solid #2d3748' }}>
+                    <h1 style={{ margin: 0, fontSize: '20px', fontWeight: '700', color: '#fff' }}>Tameerox Admin</h1>
+                    <p style={{ margin: '5px 0 0 0', fontSize: '12px', color: '#a0aec0' }}>Content Management</p>
+                </div>
 
-            {/* Tabs */}
-            <div style={{ display: 'flex', gap: '20px', borderBottom: '1px solid #ddd', marginBottom: '30px', overflowX: 'auto' }}>
-                <button
-                    onClick={() => setActiveTab('projects')}
-                    style={{
-                        padding: '10px 20px',
-                        background: 'transparent',
-                        border: 'none',
-                        borderBottom: activeTab === 'projects' ? '2px solid var(--color-primary)' : '2px solid transparent',
-                        fontWeight: 'bold',
-                        cursor: 'pointer',
-                        fontSize: '18px',
-                        whiteSpace: 'nowrap'
-                    }}
-                >
-                    Manage Projects
-                </button>
-                <button
-                    onClick={() => setActiveTab('services')}
-                    style={{
-                        padding: '10px 20px',
-                        background: 'transparent',
-                        border: 'none',
-                        borderBottom: activeTab === 'services' ? '2px solid var(--color-primary)' : '2px solid transparent',
-                        fontWeight: 'bold',
-                        cursor: 'pointer',
-                        fontSize: '18px',
-                        whiteSpace: 'nowrap'
-                    }}
-                >
-                    Manage Services
-                </button>
-                <button
-                    onClick={() => setActiveTab('leadership')}
-                    style={{
-                        padding: '10px 20px',
-                        background: 'transparent',
-                        border: 'none',
-                        borderBottom: activeTab === 'leadership' ? '2px solid var(--color-primary)' : '2px solid transparent',
-                        fontWeight: 'bold',
-                        cursor: 'pointer',
-                        fontSize: '18px',
-                        whiteSpace: 'nowrap'
-                    }}
-                >
-                    Leadership Review
-                </button>
-            </div>
+                <nav style={{ flex: 1, padding: '20px 0' }}>
+                    {navItems.map(item => {
+                        const Icon = item.icon;
+                        const isActive = activeTab === item.id;
+                        return (
+                            <button
+                                key={item.id}
+                                onClick={() => setActiveTab(item.id)}
+                                style={{
+                                    display: 'flex', alignItems: 'center', gap: '12px',
+                                    width: '100%', padding: '15px 25px',
+                                    background: isActive ? 'var(--color-primary)' : 'transparent',
+                                    color: isActive ? '#fff' : '#a0aec0',
+                                    border: 'none', cursor: 'pointer',
+                                    textAlign: 'left', fontSize: '15px', fontWeight: '500',
+                                    transition: 'all 0.2s'
+                                }}
+                            >
+                                <Icon size={20} />
+                                {item.label}
+                            </button>
+                        );
+                    })}
+                </nav>
 
-            {/* Toolbar */}
-            {activeTab !== 'leadership' && (
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
-                    <button className="btn btn-primary" onClick={() => openModal()}>
-                        <Plus size={18} style={{ marginRight: '8px' }} />
-                        Add New {activeTab === 'projects' ? 'Project' : 'Service'}
+                <div style={{ padding: '20px', borderTop: '1px solid #2d3748' }}>
+                    <button
+                        onClick={() => setIsAuthenticated(false)}
+                        style={{
+                            width: '100%', padding: '10px', background: 'rgba(255,255,255,0.1)',
+                            color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px'
+                        }}
+                    >
+                        Logout
                     </button>
+                    <div style={{ marginTop: '15px', textAlign: 'center', fontSize: '11px', color: '#718096' }}>
+                        v2.1.0 • Built for Tameerox
+                    </div>
                 </div>
-            )}
-
-            {/* Content Area */}
-            <div>
-                {activeTab === 'projects' && (
-                    <div style={{ display: 'grid', gap: '15px' }}>
-                        {projects.map(p => (
-                            <ListItem
-                                key={p.id}
-                                item={p}
-                                onEdit={() => openModal(p)}
-                                onDelete={() => { if (window.confirm('Delete this project?')) deleteProject(p.id) }}
-                            />
-                        ))}
-                    </div>
-                )}
-
-                {activeTab === 'services' && (
-                    <div style={{ display: 'grid', gap: '15px' }}>
-                        {services.map(s => (
-                            <ListItem
-                                key={s.id}
-                                item={s}
-                                onEdit={() => openModal(s)}
-                                onDelete={() => { if (window.confirm('Delete this service?')) deleteService(s.id) }}
-                            />
-                        ))}
-                    </div>
-                )}
-
-                {activeTab === 'leadership' && (
-                    <div style={{ maxWidth: '800px' }}>
-                        <div style={{ background: '#fff', padding: '30px', borderRadius: '8px', border: '1px solid #eee' }}>
-                            <h2 style={{ marginTop: 0, marginBottom: '20px' }}>Edit CEO Profile</h2>
-                            <form onSubmit={handleSaveCEO} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                                <FormInput
-                                    label="Full Name"
-                                    value={ceoForm.name}
-                                    onChange={(val) => setCeoForm({ ...ceoForm, name: val })}
-                                />
-                                <FormInput
-                                    label="Job Title"
-                                    value={ceoForm.title}
-                                    onChange={(val) => setCeoForm({ ...ceoForm, title: val })}
-                                />
-                                <FormTextArea
-                                    label="Bio"
-                                    value={ceoForm.bio}
-                                    onChange={(val) => setCeoForm({ ...ceoForm, bio: val })}
-                                />
-                                <FormInput
-                                    label="Quote"
-                                    value={ceoForm.quote}
-                                    onChange={(val) => setCeoForm({ ...ceoForm, quote: val })}
-                                />
-                                <FormImageUpload
-                                    label="CEO Headshot"
-                                    value={ceoForm.image}
-                                    onChange={(val) => setCeoForm({ ...ceoForm, image: val })}
-                                />
-                                <div style={{ borderTop: '1px solid #eee', paddingTop: '20px' }}>
-                                    <button type="submit" className="btn btn-primary">Save Leadership Profile</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                )}
             </div>
 
-            {/* Modal */}
-            {isModalOpen && (
-                <div style={{
-                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                    backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
-                }}>
-                    <div style={{
-                        background: '#fff', padding: '30px', borderRadius: '8px', width: '90%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto'
-                    }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-                            <h2 style={{ margin: 0 }}>{editingItem.id ? 'Edit' : 'Add'} {activeTab === 'projects' ? 'Project' : 'Service'}</h2>
-                            <button onClick={closeModal} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X /></button>
-                        </div>
-
-                        <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                            <FormInput label="Title" value={editingItem.title || ''} onChange={val => setEditingItem({ ...editingItem, title: val })} />
-
-                            {activeTab === 'projects' ? (
-                                <>
-                                    <FormInput label="Category" value={editingItem.category || ''} onChange={val => setEditingItem({ ...editingItem, category: val })} />
-                                    <FormImageUpload label="Project Image" value={editingItem.image} onChange={val => setEditingItem({ ...editingItem, image: val })} />
-                                    <FormTextArea label="Description" value={editingItem.description || ''} onChange={val => setEditingItem({ ...editingItem, description: val })} />
-                                </>
-                            ) : (
-                                <>
-                                    <FormInput label="Slug (URL Friendly)" value={editingItem.slug || ''} onChange={val => setEditingItem({ ...editingItem, slug: val })} />
-
-                                    {/* Icon Selection */}
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                                        <label style={{ fontSize: '14px', fontWeight: 'bold', color: '#444' }}>Icon</label>
-                                        <select
-                                            value={editingItem.iconName || ''}
-                                            onChange={e => setEditingItem({ ...editingItem, iconName: e.target.value })}
-                                            style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '4px', background: '#fff' }}
-                                        >
-                                            <option value="">Select Icon...</option>
-                                            {Object.keys(iconMap).map(iconName => (
-                                                <option key={iconName} value={iconName}>{iconName}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    <FormInput label="Short Description" value={editingItem.description || ''} onChange={val => setEditingItem({ ...editingItem, description: val })} />
-                                    <FormTextArea label="Full Description" value={editingItem.fullDescription || ''} onChange={val => setEditingItem({ ...editingItem, fullDescription: val })} />
-                                    <FormImageUpload label="Service Image" value={editingItem.image} onChange={val => setEditingItem({ ...editingItem, image: val })} />
-
-                                    {/* Scope / Bullet Points */}
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                        <label style={{ fontSize: '14px', fontWeight: 'bold', color: '#444' }}>Scope of Work (Bullet Points)</label>
-                                        {editingItem.scope.map((item, index) => (
-                                            <div key={index} style={{ display: 'flex', gap: '10px' }}>
-                                                <input
-                                                    type="text"
-                                                    value={item}
-                                                    onChange={e => handleScopeChange(index, e.target.value)}
-                                                    style={{ flex: 1, padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
-                                                    placeholder="Add bullet point..."
-                                                />
-                                                <button type="button" onClick={() => removeScopeItem(index)} style={{ color: '#e53e3e', background: 'none', border: 'none', cursor: 'pointer' }}>
-                                                    <MinusCircle size={20} />
-                                                </button>
-                                            </div>
-                                        ))}
-                                        <button type="button" onClick={addScopeItem} className="btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '5px', alignSelf: 'flex-start', padding: '5px 10px', fontSize: '13px' }}>
-                                            <PlusCircle size={14} /> Add Bullet Point
-                                        </button>
-                                    </div>
-                                </>
-                            )}
-
-                            <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-                                <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Save Changes</button>
-                                <button type="button" className="btn btn-outline" style={{ flex: 1 }} onClick={closeModal}>Cancel</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
+            {/* Main Content */}
+            <div style={{ marginLeft: '260px', flex: 1, padding: '40px', overflowY: 'auto' }}>
+                {activeTab === 'dashboard' && <DashboardOverview projects={projects} services={services} setActiveTab={setActiveTab} />}
+                {activeTab === 'projects' && <ProjectsManager />}
+                {activeTab === 'services' && <ServicesManager />}
+                {activeTab === 'leadership' && <LeadershipManager />}
+                {activeTab === 'leads' && <LeadsManager />}
+            </div>
         </div>
     );
 };
 
-// Helper Components
-const ListItem = ({ item, onEdit, onDelete }) => (
-    <div style={{
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        padding: '20px', border: '1px solid #eee', borderRadius: '8px', background: '#fff',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-    }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-            <img src={item.image} alt={item.title} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px' }} />
-            <div>
-                <h4 style={{ margin: '0 0 5px 0' }}>{item.title}</h4>
-                <div style={{ fontSize: '13px', color: '#666' }}>{item.category || item.slug}</div>
+// Overview Component
+const DashboardOverview = ({ projects = [], services = [], setActiveTab }) => {
+    return (
+        <div>
+            <h2 style={{ fontSize: '28px', color: '#1a202c', marginBottom: '10px' }}>Welcome back, Admin</h2>
+            <p style={{ color: '#718096', marginBottom: '40px' }}>Here's what's happening with your website content today.</p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '25px', marginBottom: '40px' }}>
+                <StatCard
+                    label="Total Projects"
+                    value={projects.length}
+                    icon={Briefcase}
+                    color="blue"
+                    onClick={() => setActiveTab('projects')}
+                />
+                <StatCard
+                    label="Active Services"
+                    value={services.length}
+                    icon={Wrench}
+                    color="green"
+                    onClick={() => setActiveTab('services')}
+                />
+                <StatCard
+                    label="New Inquiries"
+                    value="View"
+                    icon={MessageSquare}
+                    color="purple"
+                    onClick={() => setActiveTab('leads')}
+                />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
+                <div style={{ background: '#fff', padding: '25px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                    <h3 style={{ margin: '0 0 20px 0', fontSize: '18px', color: '#2d3748' }}>Quick Actions</h3>
+                    <div style={{ display: 'flex', gap: '15px' }}>
+                        <button className="btn btn-primary" onClick={() => setActiveTab('projects')}>Add Project</button>
+                        <button className="btn btn-outline" onClick={() => setActiveTab('services')}>Updated Services</button>
+                    </div>
+                </div>
             </div>
         </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
-            <button onClick={onEdit} className="btn-icon" style={{ padding: '8px', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer' }}>
-                <Edit size={16} />
-            </button>
-            <button onClick={onDelete} className="btn-icon" style={{ padding: '8px', border: '1px solid #ffaeb6', background: '#fff5f5', borderRadius: '4px', cursor: 'pointer', color: '#e53e3e' }}>
-                <Trash size={16} />
-            </button>
-        </div>
-    </div>
-);
+    );
+};
 
-const FormInput = ({ label, value, onChange }) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-        <label style={{ fontSize: '14px', fontWeight: 'bold', color: '#444' }}>{label}</label>
-        <input
-            type="text"
-            value={value}
-            onChange={e => onChange(e.target.value)}
-            style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
-        />
-    </div>
-);
-
-const FormTextArea = ({ label, value, onChange }) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-        <label style={{ fontSize: '14px', fontWeight: 'bold', color: '#444' }}>{label}</label>
-        <textarea
-            rows={4}
-            value={value}
-            onChange={e => onChange(e.target.value)}
-            style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '4px', fontFamily: 'inherit' }}
-        />
-    </div>
-);
-
-const FormImageUpload = ({ label, value, onChange }) => {
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                onChange(reader.result);
-            };
-            reader.readAsDataURL(file);
-        }
+const StatCard = ({ label, value, icon: Icon, color, onClick }) => {
+    const colors = {
+        blue: { bg: '#EBF8FF', text: '#2B6CB0' },
+        green: { bg: '#F0FFF4', text: '#2F855A' },
+        purple: { bg: '#FAF5FF', text: '#805AD5' },
     };
+    const theme = colors[color] || colors.blue;
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-            <label style={{ fontSize: '14px', fontWeight: 'bold', color: '#444' }}>{label}</label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                {value && (
-                    <img src={value} alt="Preview" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #eee' }} />
-                )}
-                <label className="btn btn-outline" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', fontSize: '14px' }}>
-                    <Upload size={16} />
-                    {value ? 'Change Image' : 'Upload Image'}
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleFileChange}
-                        style={{ display: 'none' }}
-                    />
-                </label>
+        <div
+            onClick={onClick}
+            style={{
+                background: '#fff', padding: '25px', borderRadius: '12px', border: '1px solid #e2e8f0',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                cursor: 'pointer', transition: 'transform 0.2s', boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+            }}
+            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-3px)'}
+            onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+        >
+            <div>
+                <p style={{ margin: '0 0 5px 0', fontSize: '14px', color: '#718096', fontWeight: '600' }}>{label}</p>
+                <h3 style={{ margin: 0, fontSize: '32px', color: '#1a202c' }}>{value}</h3>
             </div>
-            {/* Fallback to URL input if needed */}
-            <input
-                type="text"
-                placeholder="Or paste image URL"
-                value={value || ''}
-                onChange={e => onChange(e.target.value)}
-                style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '13px', marginTop: '5px' }}
-            />
+            <div style={{
+                width: '50px', height: '50px', borderRadius: '10px',
+                background: theme.bg, color: theme.text,
+                display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+                <Icon size={24} />
+            </div>
         </div>
     );
 };

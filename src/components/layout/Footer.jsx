@@ -65,7 +65,7 @@ const Footer = () => {
                             </div>
                             <div className="contact-row">
                                 <div className="icon-box"><Mail size={18} /></div>
-                                <a href="mailto:info@tameerox.qa" className="hover-gold">info@tameerox.qa</a>
+                                <a href="mailto:info@tameerox.com" className="hover-gold">info@tameerox.com</a>
                             </div>
 
                             <a

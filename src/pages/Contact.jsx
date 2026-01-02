@@ -143,7 +143,7 @@ const Contact = () => {
                                     </div>
                                     <div>
                                         <h5 style={{ fontSize: '16px', fontWeight: '700', textTransform: 'uppercase', marginBottom: '5px', color: '#9CA3AF' }}>Email Us</h5>
-                                        <a href="mailto:info@tameerox.qa" style={{ fontSize: '18px', color: '#1F2937' }}>info@tameerox.qa</a>
+                                        <a href="mailto:info@tameerox.com" style={{ fontSize: '18px', color: '#1F2937' }}>info@tameerox.com</a>
                                     </div>
                                 </div>
 
