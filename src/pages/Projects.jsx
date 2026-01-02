@@ -69,11 +69,7 @@ const Projects = () => {
                     </div>
 
                     {/* Grid */}
-                    <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
-                        gap: '40px'
-                    }}>
+                    <div className="responsive-grid">
                         {filteredProjects.map(project => (
                             <ProjectCard key={project.id} project={project} />
                         ))}

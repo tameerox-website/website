@@ -113,26 +113,11 @@ const Home = () => {
                         End-to-end solutions for residential, commercial & industrial projects—built to last.
                     </p>
 
-                    <div style={{
-                        display: 'flex',
-                        gap: '20px',
-                        justifyContent: 'center',
-                        flexWrap: 'wrap',
-                        animation: 'fadeInUp 0.8s ease-out 0.6s backwards'
-                    }}>
-                        <a href={telPhone} className="btn btn-primary" style={{ padding: '20px 48px', fontSize: '18px', minWidth: '300px', boxShadow: '0 10px 25px rgba(212, 175, 55, 0.25)' }}>
+                    <div className="hero-btn-group">
+                        <a href={telPhone} className="hero-btn">
                             <Phone size={22} style={{ marginRight: '12px' }} /> Call +974 7112 9272
                         </a>
-                        <Link to="/projects" className="btn-outline" style={{
-                            padding: '20px 48px',
-                            fontSize: '18px',
-                            color: '#fff',
-                            border: '1px solid rgba(255,255,255,0.3)',
-                            background: 'rgba(255,255,255,0.05)',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            borderRadius: '0'
-                        }}>
+                        <Link to="/projects" className="hero-btn-outline">
                             View Our Work
                         </Link>
                     </div>
@@ -148,11 +133,7 @@ const Home = () => {
                         <p style={{ fontSize: '18px', color: '#6B7280' }}>Delivered with precision, certified materials, and engineering excellence.</p>
                     </div>
 
-                    <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-                        gap: '30px'
-                    }}>
+                    <div className="responsive-grid">
                         {featuredServices.map((service, idx) => (
                             <Link
                                 to={`/services`}
@@ -211,11 +192,7 @@ const Home = () => {
                         <p style={{ fontSize: '18px', color: '#6B7280' }}>A portfolio built on integrity and client satisfaction.</p>
                     </div>
 
-                    <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-                        gap: '40px'
-                    }}>
+                    <div className="responsive-grid">
                         {featuredProjects.map((project, idx) => (
                             <div
                                 key={project.id}

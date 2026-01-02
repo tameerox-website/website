@@ -49,11 +49,7 @@ const Services = () => {
             {/* Services Grid Section */}
             <div className="section" id="services-grid" style={{ backgroundColor: '#F9FAFB' }}>
                 <div className="container">
-                    <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-                        gap: '30px'
-                    }}>
+                    <div className="responsive-grid">
                         {services.map((service, index) => (
                             <div
                                 key={service.id}

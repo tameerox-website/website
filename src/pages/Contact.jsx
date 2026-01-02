@@ -95,7 +95,7 @@ const Contact = () => {
 
             <div className="section">
                 <div className="container">
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '60px' }}>
+                    <div className="responsive-grid" style={{ gap: '60px' }}>
 
                         {/* Contact Info Column */}
                         <div className="animate-on-scroll">
@@ -179,7 +179,7 @@ const Contact = () => {
                                         />
                                     </div>
 
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                                    <div className="form-row-grid">
                                         <div>
                                             <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', color: '#6B7280', fontWeight: '600', textTransform: 'uppercase' }}>Phone Number *</label>
                                             <input

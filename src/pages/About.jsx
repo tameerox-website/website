@@ -55,7 +55,7 @@ const About = () => {
             {/* Overview Section */}
             <div className="section animate-on-scroll">
                 <div className="container">
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '60px', alignItems: 'center' }}>
+                    <div className="responsive-grid" style={{ gap: '60px', alignItems: 'center' }}>
                         <div>
                             <span className="text-accent" style={{ fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '14px', display: 'block', marginBottom: '10px' }}>
                                 Company Overview
