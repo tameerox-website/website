@@ -10,6 +10,7 @@ export const DataProvider = ({ children }) => {
     // Initial state (starts empty or with minimal loading state)
     const [services, setServices] = useState(initialServices);
     const [projects, setProjects] = useState(initialProjects);
+    const [siteContent, setSiteContent] = useState({}); // Key-value store for section content
     const [loading, setLoading] = useState(true);
 
     // Fetch Initial Data
@@ -32,10 +33,25 @@ export const DataProvider = ({ children }) => {
                 .select('*')
                 .order('id', { ascending: true });
 
+            // 3. Fetch Site Content
+            const { data: contentData, error: contentError } = await supabase
+                .from('site_content')
+                .select('*');
+
             if (servicesError) throw servicesError;
             if (projectsError) throw projectsError;
+            // Note: contentError might happen if table doesn't exist yet, we can ignore or log it.
 
-            // 3. Handle Empty DB (Auto-Seed logic for first run)
+            // Handle Site Content
+            if (contentData) {
+                const contentMap = {};
+                contentData.forEach(item => {
+                    contentMap[item.section_name] = item.content;
+                });
+                setSiteContent(contentMap);
+            }
+
+            // 4. Handle Empty DB (Auto-Seed logic for first run)
             if (servicesData && servicesData.length > 0) {
                 // Map snake_case to camelCase for services
                 const mappedServices = servicesData.map(s => ({
@@ -171,17 +187,37 @@ export const DataProvider = ({ children }) => {
         }
     };
 
+    const updateSiteContent = async (sectionName, content) => {
+        const { data, error } = await supabase
+            .from('site_content')
+            .upsert({ section_name: sectionName, content: content }, { onConflict: 'section_name' })
+            .select();
+
+        if (!error && data) {
+            setSiteContent(prev => ({
+                ...prev,
+                [sectionName]: content
+            }));
+            alert('Content updated successfully!');
+        } else {
+            console.error(error);
+            alert('Error updating content: ' + error?.message);
+        }
+    };
+
     return (
         <DataContext.Provider value={{
             services,
             projects,
+            siteContent,
             loading,
             addProject,
             updateProject,
             deleteProject,
             addService,
             updateService,
-            deleteService
+            deleteService,
+            updateSiteContent
         }}>
             {children}
         </DataContext.Provider>

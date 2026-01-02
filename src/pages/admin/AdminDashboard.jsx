@@ -5,12 +5,27 @@ import { Helmet } from 'react-helmet-async';
 import { iconMap } from '../../data/data';
 
 const AdminDashboard = () => {
-    const { services, projects, addProject, updateProject, deleteProject, addService, updateService, deleteService } = useData();
+    const { services, projects, siteContent, addProject, updateProject, deleteProject, addService, updateService, deleteService, updateSiteContent } = useData();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [password, setPassword] = useState('');
-    const [activeTab, setActiveTab] = useState('projects'); // 'projects' or 'services'
+    const [activeTab, setActiveTab] = useState('projects'); // 'projects', 'services', 'leadership'
     const [editingItem, setEditingItem] = useState(null); // Item being edited or new item
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // CEO Form State
+    const [ceoForm, setCeoForm] = useState({
+        name: '',
+        title: '',
+        bio: '',
+        image: ''
+    });
+
+    // Populate CEO Form when data loads
+    React.useEffect(() => {
+        if (siteContent && siteContent['ceo_section']) {
+            setCeoForm(siteContent['ceo_section']);
+        }
+    }, [siteContent]);
 
     // Simple auth check
     const handleLogin = (e) => {
@@ -43,14 +58,20 @@ const AdminDashboard = () => {
             } else {
                 await addProject(editingItem);
             }
-        } else {
+            closeModal();
+        } else if (activeTab === 'services') {
             if (editingItem.id) {
                 await updateService(editingItem.id, editingItem);
             } else {
                 await addService(editingItem);
             }
+            closeModal();
         }
-        closeModal();
+    };
+
+    const handleSaveCEO = async (e) => {
+        e.preventDefault();
+        await updateSiteContent('ceo_section', ceoForm);
     };
 
     // Helper for managing scope array
@@ -109,7 +130,7 @@ const AdminDashboard = () => {
             </div>
 
             {/* Tabs */}
-            <div style={{ display: 'flex', gap: '20px', borderBottom: '1px solid #ddd', marginBottom: '30px' }}>
+            <div style={{ display: 'flex', gap: '20px', borderBottom: '1px solid #ddd', marginBottom: '30px', overflowX: 'auto' }}>
                 <button
                     onClick={() => setActiveTab('projects')}
                     style={{
@@ -119,7 +140,8 @@ const AdminDashboard = () => {
                         borderBottom: activeTab === 'projects' ? '2px solid var(--color-primary)' : '2px solid transparent',
                         fontWeight: 'bold',
                         cursor: 'pointer',
-                        fontSize: '18px'
+                        fontSize: '18px',
+                        whiteSpace: 'nowrap'
                     }}
                 >
                     Manage Projects
@@ -133,41 +155,103 @@ const AdminDashboard = () => {
                         borderBottom: activeTab === 'services' ? '2px solid var(--color-primary)' : '2px solid transparent',
                         fontWeight: 'bold',
                         cursor: 'pointer',
-                        fontSize: '18px'
+                        fontSize: '18px',
+                        whiteSpace: 'nowrap'
                     }}
                 >
                     Manage Services
                 </button>
-            </div>
-
-            {/* Toolbar */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
-                <button className="btn btn-primary" onClick={() => openModal()}>
-                    <Plus size={18} style={{ marginRight: '8px' }} />
-                    Add New {activeTab === 'projects' ? 'Project' : 'Service'}
+                <button
+                    onClick={() => setActiveTab('leadership')}
+                    style={{
+                        padding: '10px 20px',
+                        background: 'transparent',
+                        border: 'none',
+                        borderBottom: activeTab === 'leadership' ? '2px solid var(--color-primary)' : '2px solid transparent',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        fontSize: '18px',
+                        whiteSpace: 'nowrap'
+                    }}
+                >
+                    Leadership Review
                 </button>
             </div>
 
-            {/* List */}
-            <div style={{ display: 'grid', gap: '15px' }}>
-                {activeTab === 'projects' ? (
-                    projects.map(p => (
-                        <ListItem
-                            key={p.id}
-                            item={p}
-                            onEdit={() => openModal(p)}
-                            onDelete={() => { if (window.confirm('Delete this project?')) deleteProject(p.id) }}
-                        />
-                    ))
-                ) : (
-                    services.map(s => (
-                        <ListItem
-                            key={s.id}
-                            item={s}
-                            onEdit={() => openModal(s)}
-                            onDelete={() => { if (window.confirm('Delete this service?')) deleteService(s.id) }}
-                        />
-                    ))
+            {/* Toolbar */}
+            {activeTab !== 'leadership' && (
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
+                    <button className="btn btn-primary" onClick={() => openModal()}>
+                        <Plus size={18} style={{ marginRight: '8px' }} />
+                        Add New {activeTab === 'projects' ? 'Project' : 'Service'}
+                    </button>
+                </div>
+            )}
+
+            {/* Content Area */}
+            <div>
+                {activeTab === 'projects' && (
+                    <div style={{ display: 'grid', gap: '15px' }}>
+                        {projects.map(p => (
+                            <ListItem
+                                key={p.id}
+                                item={p}
+                                onEdit={() => openModal(p)}
+                                onDelete={() => { if (window.confirm('Delete this project?')) deleteProject(p.id) }}
+                            />
+                        ))}
+                    </div>
+                )}
+
+                {activeTab === 'services' && (
+                    <div style={{ display: 'grid', gap: '15px' }}>
+                        {services.map(s => (
+                            <ListItem
+                                key={s.id}
+                                item={s}
+                                onEdit={() => openModal(s)}
+                                onDelete={() => { if (window.confirm('Delete this service?')) deleteService(s.id) }}
+                            />
+                        ))}
+                    </div>
+                )}
+
+                {activeTab === 'leadership' && (
+                    <div style={{ maxWidth: '800px' }}>
+                        <div style={{ background: '#fff', padding: '30px', borderRadius: '8px', border: '1px solid #eee' }}>
+                            <h2 style={{ marginTop: 0, marginBottom: '20px' }}>Edit CEO Profile</h2>
+                            <form onSubmit={handleSaveCEO} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                <FormInput
+                                    label="Full Name"
+                                    value={ceoForm.name}
+                                    onChange={(val) => setCeoForm({ ...ceoForm, name: val })}
+                                />
+                                <FormInput
+                                    label="Job Title"
+                                    value={ceoForm.title}
+                                    onChange={(val) => setCeoForm({ ...ceoForm, title: val })}
+                                />
+                                <FormTextArea
+                                    label="Bio"
+                                    value={ceoForm.bio}
+                                    onChange={(val) => setCeoForm({ ...ceoForm, bio: val })}
+                                />
+                                <FormInput
+                                    label="Quote"
+                                    value={ceoForm.quote}
+                                    onChange={(val) => setCeoForm({ ...ceoForm, quote: val })}
+                                />
+                                <FormImageUpload
+                                    label="CEO Headshot"
+                                    value={ceoForm.image}
+                                    onChange={(val) => setCeoForm({ ...ceoForm, image: val })}
+                                />
+                                <div style={{ borderTop: '1px solid #eee', paddingTop: '20px' }}>
+                                    <button type="submit" className="btn btn-primary">Save Leadership Profile</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 )}
             </div>
 

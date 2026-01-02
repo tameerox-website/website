@@ -3,8 +3,22 @@ import { Helmet } from 'react-helmet-async';
 import { Target, Eye, ShieldCheck, Users, Briefcase, Award } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import PageHero from '../components/layout/PageHero';
+import { useData } from '../contexts/DataContext';
 
 const About = () => {
+    const { siteContent } = useData();
+
+    // Default CEO Data (Fallback)
+    const defaultCEO = {
+        name: "Eng. Youssef Al-Sayed",
+        title: "CEO & Founder",
+        bio: "With over 15 years of experience in the construction and engineering sector, Eng. Youssef Al-Sayed has led Tameerox to become a cornerstone of Qatar’s infrastructure development. His philosophy is simple yet profound: true engineering excellence lies in the perfect balance of innovation, safety, and sustainability.\n\nUnder his leadership, Tameerox has successfully delivered over 50 complex projects, ranging from high-rise residential towers to critical industrial facilities. Youssef believes in a hands-on approach, ensuring that every project not only meets but exceeds international quality standards. His vision extends beyond construction; he aims to build lasting relationships with clients and contribute meaningfully to the Qatar National Vision 2030.",
+        quote: "We don't just build structures; we build trust and legacies that stand the test of time.",
+        image: "/assets/ceo.png"
+    };
+
+    const ceo = (siteContent && siteContent['ceo_section']) ? siteContent['ceo_section'] : defaultCEO;
+
     // Scroll animation hook
     useEffect(() => {
         const observer = new IntersectionObserver((entries) => {
@@ -81,6 +95,71 @@ const About = () => {
                                 alt="Tameerox Engineers on site"
                                 style={{ width: '100%', borderRadius: '4px', boxShadow: '0 20px 40px rgba(0,0,0,0.1)', position: 'relative', zIndex: 1 }}
                             />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Leadership Section */}
+            <div className="section bg-light animate-on-scroll">
+                <div className="container">
+                    <div className="grid-2" style={{ alignItems: 'center' }}>
+                        {/* Image Column */}
+                        <div style={{ position: 'relative', order: 1 }}>
+                            <div style={{
+                                position: 'absolute',
+                                bottom: 'calc(-1 * var(--size-base, 20px))',
+                                right: '-20px',
+                                width: '150px',
+                                height: '150px',
+                                background: 'var(--color-accent-light)',
+                                opacity: 0.3,
+                                zIndex: 0,
+                                borderRadius: '50%'
+                            }}></div>
+                            <img
+                                src={ceo.image || "/assets/ceo.png"}
+                                alt={`${ceo.name} - CEO`}
+                                style={{
+                                    width: '100%',
+                                    maxWidth: '500px',
+                                    borderRadius: '4px',
+                                    boxShadow: 'var(--shadow-xl)',
+                                    position: 'relative',
+                                    zIndex: 1,
+                                    objectFit: 'cover',
+                                    aspectRatio: '4/5',
+                                    display: 'block',
+                                    margin: '0 auto'
+                                }}
+                            />
+                        </div>
+
+                        {/* Text Column */}
+                        <div style={{ order: 2 }}>
+                            <span className="section-headline-gold">Leadership</span>
+                            <h2 style={{ marginBottom: '10px' }}>{ceo.name}</h2>
+                            <p style={{
+                                fontSize: '18px',
+                                fontWeight: '600',
+                                color: 'var(--color-primary)',
+                                marginBottom: '25px',
+                                borderBottom: '2px solid var(--color-accent)',
+                                display: 'inline-block',
+                                paddingBottom: '5px'
+                            }}>
+                                {ceo.title}
+                            </p>
+
+                            <div style={{ color: '#4B5563', marginBottom: '20px', whiteSpace: 'pre-line' }}>
+                                {ceo.bio}
+                            </div>
+
+                            {ceo.quote && (
+                                <div style={{ fontStyle: 'italic', color: 'var(--color-primary)', borderLeft: '4px solid var(--color-accent)', paddingLeft: '20px' }}>
+                                    "{ceo.quote.replace(/^"|"$/g, '')}"
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
