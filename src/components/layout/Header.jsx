@@ -125,37 +125,50 @@ const Header = () => {
                 </div>
             </div>
 
-            {/* Mobile Drawer */}
-            <div className={`mobile-drawer-overlay ${isMenuOpen ? 'open' : ''}`}>
-                {/* Close button inside drawer for accessibility / reachability */}
-                <button className="mobile-close-btn" onClick={closeMenu} aria-label="Close menu">
-                    <X size={32} />
-                </button>
+            {/* Mobile Backdrop (Dims the background) */}
+            <div
+                className={`mobile-backdrop ${isMenuOpen ? 'open' : ''}`}
+                onClick={closeMenu}
+                aria-hidden="true"
+            ></div>
 
-                <ul className="mobile-nav-list">
-                    {['Home', 'About', 'Services', 'Projects', 'Contact'].map((item) => (
-                        <li key={item}>
-                            <Link
-                                to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
-                                className={`mobile-nav-link ${location.pathname === (item === 'Home' ? '/' : `/${item.toLowerCase()}`) ? 'active' : ''}`}
-                            >
-                                {item}
-                            </Link>
-                        </li>
-                    ))}
-                </ul>
+            {/* Mobile Drawer (Slides in from Left) */}
+            <div className={`mobile-drawer ${isMenuOpen ? 'open' : ''}`}>
+                <div className="drawer-header">
+                    {/* Close button top-right */}
+                    <button className="mobile-close-btn" onClick={closeMenu} aria-label="Close menu">
+                        <X size={28} />
+                    </button>
+                </div>
+
+                <div className="drawer-content">
+                    <ul className="mobile-nav-list">
+                        {['Home', 'About', 'Services', 'Projects', 'Contact'].map((item) => (
+                            <li key={item}>
+                                <Link
+                                    to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
+                                    className={`mobile-nav-link ${item === 'Home' ? 'home-link' : ''}`}
+                                    onClick={closeMenu}
+                                >
+                                    {item}
+                                </Link>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
 
                 <div className="mobile-footer">
                     <div className="mobile-contact-strip">
-                        <a href={`tel:${phoneNumber}`} className="mobile-phone-item">
-                            <Phone size={20} /> {displayPhone}
+                        <a href={`tel:${phoneNumber}`} className="mobile-contact-item">
+                            <Phone size={18} /> Call Us
                         </a>
-                        <a href={`https://wa.me/${phoneNumber.replace('+', '')}`} target="_blank" rel="noopener noreferrer" className="mobile-whatsapp-item">
-                            <MessageCircle size={20} /> Chat on WhatsApp
+                        <div className="mobile-divider"></div>
+                        <a href={`https://wa.me/${phoneNumber.replace('+', '')}`} target="_blank" rel="noopener noreferrer" className="mobile-contact-item">
+                            <MessageCircle size={18} /> WhatsApp
                         </a>
                     </div>
-                    <a href={`tel:${phoneNumber}`} className="btn btn-primary" style={{ width: '100%', borderRadius: '0' }}>
-                        Call Now
+                    <a href={`tel:${phoneNumber}`} className="btn-call-mobile-full">
+                        CALL NOW
                     </a>
                 </div>
             </div>
