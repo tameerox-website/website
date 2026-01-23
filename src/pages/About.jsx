@@ -10,9 +10,15 @@ const About = () => {
 
     // Default CEO Data (Fallback)
     const defaultCEO = {
-        name: "Eng. Youssef Al-Sayed",
+        name: "Kashif Munawar",
         title: "CEO & Founder",
-        bio: "With over 15 years of experience in the construction and engineering sector, Eng. Youssef Al-Sayed has led Tameerox to become a cornerstone of Qatar’s infrastructure development. His philosophy is simple yet profound: true engineering excellence lies in the perfect balance of innovation, safety, and sustainability.\n\nUnder his leadership, Tameerox has successfully delivered over 50 complex projects, ranging from high-rise residential towers to critical industrial facilities. Youssef believes in a hands-on approach, ensuring that every project not only meets but exceeds international quality standards. His vision extends beyond construction; he aims to build lasting relationships with clients and contribute meaningfully to the Qatar National Vision 2030.",
+        bio: "With over 12 years of hands-on experience in Qatar’s construction and building solutions industry, Kashif Munawar founded Tameerox to deliver what clients truly need: honest service, technical excellence, and projects built to last—not just promised, but proven.
+
+A detail-oriented civil professional and trusted on-site leader, Kashif has personally managed 200+ residential, commercial, and industrial projects across Doha, Al Rayyan, Lusail, and beyond. From precision waterproofing and RCC works to high-end tile installations and interior fit-outs, he ensures every job reflects Tameerox’s core values: quality, transparency, and accountability.
+
+Under Kashif’s leadership, Tameerox has grown into a reliable name for property owners and developers who value craftsmanship over shortcuts and long-term integrity over quick fixes.
+
+When he’s not inspecting a terrace waterproofing job or consulting with a client, Kashif is mentoring emerging technicians, testing new construction technologies, or contributing to community development efforts in Qatar..",
         quote: "We don't just build structures; we build trust and legacies that stand the test of time.",
         image: "/assets/ceo.png"
     };
