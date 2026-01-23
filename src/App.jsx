@@ -25,7 +25,7 @@ function App() {
         <Router>
           <ScrollToTop />
           <ScrollProgress />
-          <div className="app-container" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+          <div className="app-container" style={{ display: 'flex', flexDirection: 'column' }}>
             <Header />
             <main style={{ flex: 1, paddingTop: '90px' }}>
               <Suspense fallback={<div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading...</div>}>
