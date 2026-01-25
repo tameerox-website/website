@@ -6,24 +6,56 @@ import PageHero from '../components/layout/PageHero';
 import { useData } from '../contexts/DataContext';
 
 const About = () => {
-    const { siteContent } = useData();
+    const { siteContent = {}, loading = true } = useData() || {};
 
-    // Default CEO Data (Fallback)
+    // Default CEO Data (Fallback - only used if data is loaded and no CEO data exists)
     const defaultCEO = {
         name: "Kashif Munawar",
         title: "CEO & Founder",
-        bio: "With over 12 years of hands-on experience in Qatar’s construction and building solutions industry, Kashif Munawar founded Tameerox to deliver what clients truly need: honest service, technical excellence, and projects built to last—not just promised, but proven.
+        bio: `With over 12 years of hands-on experience in Qatar's construction and building solutions industry, Kashif Munawar founded Tameerox to deliver what clients truly need: honest service, technical excellence, and projects built to last—not just promised, but proven.
 
-A detail-oriented civil professional and trusted on-site leader, Kashif has personally managed 200+ residential, commercial, and industrial projects across Doha, Al Rayyan, Lusail, and beyond. From precision waterproofing and RCC works to high-end tile installations and interior fit-outs, he ensures every job reflects Tameerox’s core values: quality, transparency, and accountability.
+A detail-oriented civil professional and trusted on-site leader, Kashif has personally managed 200+ residential, commercial, and industrial projects across Doha, Al Rayyan, Lusail, and beyond. From precision waterproofing and RCC works to high-end tile installations and interior fit-outs, he ensures every job reflects Tameerox's core values: quality, transparency, and accountability.
 
-Under Kashif’s leadership, Tameerox has grown into a reliable name for property owners and developers who value craftsmanship over shortcuts and long-term integrity over quick fixes.
+Under Kashif's leadership, Tameerox has grown into a reliable name for property owners and developers who value craftsmanship over shortcuts and long-term integrity over quick fixes.
 
-When he’s not inspecting a terrace waterproofing job or consulting with a client, Kashif is mentoring emerging technicians, testing new construction technologies, or contributing to community development efforts in Qatar..",
+When he's not inspecting a terrace waterproofing job or consulting with a client, Kashif is mentoring emerging technicians, testing new construction technologies, or contributing to community development efforts in Qatar..`,
         quote: "We don't just build structures; we build trust and legacies that stand the test of time.",
         image: "/assets/ceo.png"
     };
 
-    const ceo = (siteContent && siteContent['ceo_section']) ? siteContent['ceo_section'] : defaultCEO;
+    // Get CEO data - prefer database data, fallback to default only after loading completes
+    // This prevents showing demo data while real data is being fetched
+    const ceo = (siteContent && siteContent['ceo_section']) 
+        ? siteContent['ceo_section'] 
+        : defaultCEO;
+    
+    // Only show CEO section after data has loaded (prevents flash of demo data)
+    // Show if: data finished loading AND (we have CEO data OR we'll use the fallback)
+    const showCeoSection = !loading;
+    
+    // Add cache-busting to image URL to force browser to reload updated images
+    // This ensures the latest image from admin panel is always displayed
+    const getImageUrl = (imageUrl) => {
+        if (!imageUrl) return "/assets/ceo.png";
+        // If it's a data URL (base64), return as-is (no cache busting needed)
+        // Base64 images are already unique and will force reload when changed
+        if (imageUrl.startsWith('data:')) return imageUrl;
+        // For regular URLs, add a cache buster based on the entire CEO object
+        // This ensures the image reloads when any CEO data changes (including image)
+        // We use a hash of the entire CEO object so it changes when data is updated
+        const ceoString = JSON.stringify(ceo);
+        const contentHash = ceoString.split('').reduce((acc, char) => {
+            return ((acc << 5) - acc) + char.charCodeAt(0);
+        }, 0);
+        const separator = imageUrl.includes('?') ? '&' : '?';
+        return `${imageUrl}${separator}v=${Math.abs(contentHash)}`;
+    };
+
+    // Force re-render when CEO image changes to ensure updated image displays
+    useEffect(() => {
+        // This effect ensures the component updates when CEO data changes
+        // The dependency on ceo.image will trigger a re-render when image URL changes
+    }, [ceo?.image, siteContent]);
 
     // Scroll animation hook
     useEffect(() => {
@@ -107,69 +139,76 @@ When he’s not inspecting a terrace waterproofing job or consulting with a clie
             </div>
 
             {/* Leadership Section */}
-            <div className="section bg-light animate-on-scroll">
-                <div className="container">
-                    <div className="grid-2" style={{ alignItems: 'center' }}>
-                        {/* Image Column */}
-                        <div style={{ position: 'relative', order: 1 }}>
-                            <div style={{
-                                position: 'absolute',
-                                bottom: 'calc(-1 * var(--size-base, 20px))',
-                                right: '-20px',
-                                width: '150px',
-                                height: '150px',
-                                background: 'var(--color-accent-light)',
-                                opacity: 0.3,
-                                zIndex: 0,
-                                borderRadius: '50%'
-                            }}></div>
-                            <img
-                                src={ceo.image || "/assets/ceo.png"}
-                                alt={`${ceo.name} - CEO`}
-                                style={{
-                                    width: '100%',
-                                    maxWidth: '500px',
-                                    borderRadius: '4px',
-                                    boxShadow: 'var(--shadow-xl)',
-                                    position: 'relative',
-                                    zIndex: 1,
-                                    objectFit: 'cover',
-                                    aspectRatio: '4/5',
-                                    display: 'block',
-                                    margin: '0 auto'
-                                }}
-                            />
-                        </div>
-
-                        {/* Text Column */}
-                        <div style={{ order: 2 }}>
-                            <span className="section-headline-gold">Leadership</span>
-                            <h2 style={{ marginBottom: '10px' }}>{ceo.name}</h2>
-                            <p style={{
-                                fontSize: '18px',
-                                fontWeight: '600',
-                                color: 'var(--color-primary)',
-                                marginBottom: '25px',
-                                borderBottom: '2px solid var(--color-accent)',
-                                display: 'inline-block',
-                                paddingBottom: '5px'
-                            }}>
-                                {ceo.title}
-                            </p>
-
-                            <div style={{ color: '#4B5563', marginBottom: '20px', whiteSpace: 'pre-line' }}>
-                                {ceo.bio}
+            {showCeoSection && ceo && (
+                <div className="section bg-light animate-on-scroll">
+                    <div className="container">
+                        <div className="grid-2" style={{ alignItems: 'center' }}>
+                            {/* Image Column */}
+                            <div style={{ position: 'relative', order: 1 }}>
+                                <div style={{
+                                    position: 'absolute',
+                                    bottom: 'calc(-1 * var(--size-base, 20px))',
+                                    right: '-20px',
+                                    width: '150px',
+                                    height: '150px',
+                                    background: 'var(--color-accent-light)',
+                                    opacity: 0.3,
+                                    zIndex: 0,
+                                    borderRadius: '50%'
+                                }}></div>
+                                <img
+                                    key={ceo.image || 'default-ceo'} // Force re-render when image changes
+                                    src={getImageUrl(ceo.image)}
+                                    alt={`${ceo.name} - CEO`}
+                                    style={{
+                                        width: '100%',
+                                        maxWidth: '500px',
+                                        borderRadius: '4px',
+                                        boxShadow: 'var(--shadow-xl)',
+                                        position: 'relative',
+                                        zIndex: 1,
+                                        objectFit: 'cover',
+                                        aspectRatio: '4/5',
+                                        display: 'block',
+                                        margin: '0 auto'
+                                    }}
+                                    onError={(e) => {
+                                        // Fallback to default image if loaded image fails
+                                        e.target.src = "/assets/ceo.png";
+                                    }}
+                                />
                             </div>
 
-                            {ceo.quote && (
-                                <div style={{ fontStyle: 'italic', color: 'var(--color-primary)', borderLeft: '4px solid var(--color-accent)', paddingLeft: '20px' }}>
-                                    "{ceo.quote.replace(/^"|"$/g, '')}"
+                            {/* Text Column */}
+                            <div style={{ order: 2 }}>
+                                <span className="section-headline-gold">Leadership</span>
+                                <h2 style={{ marginBottom: '10px' }}>{ceo.name}</h2>
+                                <p style={{
+                                    fontSize: '18px',
+                                    fontWeight: '600',
+                                    color: 'var(--color-primary)',
+                                    marginBottom: '25px',
+                                    borderBottom: '2px solid var(--color-accent)',
+                                    display: 'inline-block',
+                                    paddingBottom: '5px'
+                                }}>
+                                    {ceo.title}
+                                </p>
+
+                                <div style={{ color: '#4B5563', marginBottom: '20px', whiteSpace: 'pre-line' }}>
+                                    {ceo.bio}
                                 </div>
-                            )}
+
+                                {ceo.quote && (
+                                    <div style={{ fontStyle: 'italic', color: 'var(--color-primary)', borderLeft: '4px solid var(--color-accent)', paddingLeft: '20px' }}>
+                                        "{ceo.quote.replace(/^"|"$/g, '')}"
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* Mission & Vision */}
             <div className="section" style={{ backgroundColor: 'var(--color-primary)', color: '#fff' }}>

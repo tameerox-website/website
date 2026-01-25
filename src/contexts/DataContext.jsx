@@ -249,20 +249,81 @@ export const DataProvider = ({ children }) => {
     };
 
     const updateSiteContent = async (sectionName, content) => {
-        const { data, error } = await supabase
-            .from('site_content')
-            .upsert({ section_name: sectionName, content: content }, { onConflict: 'section_name' })
-            .select();
+        try {
+            // Check if content contains a large base64 image
+            const contentString = JSON.stringify(content);
+            const contentSizeKB = new Blob([contentString]).size / 1024;
+            
+            // Warn if content is very large (Supabase JSONB has limits)
+            if (contentSizeKB > 500) {
+                const proceed = confirm(
+                    `Warning: The content is very large (${Math.round(contentSizeKB)}KB). ` +
+                    `Large images may cause issues. Consider using a smaller image or an external URL instead. ` +
+                    `Continue anyway?`
+                );
+                if (!proceed) return;
+            }
 
-        if (!error && data) {
-            setSiteContent(prev => ({
-                ...prev,
-                [sectionName]: content
-            }));
-            alert('Content updated successfully!');
-        } else {
-            console.error(error);
-            alert('Error updating content: ' + error?.message);
+            // Check if Supabase is properly configured
+            const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+            const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+            
+            if (!supabaseUrl || !supabaseKey || 
+                supabaseUrl === 'https://placeholder.supabase.co' || 
+                supabaseUrl === '' ||
+                supabaseKey === 'placeholder-key' ||
+                supabaseKey === '') {
+                alert(
+                    '⚠️ Supabase is not configured!\n\n' +
+                    'Please create a .env file in your project root with:\n\n' +
+                    'VITE_SUPABASE_URL=https://your-project.supabase.co\n' +
+                    'VITE_SUPABASE_ANON_KEY=your-anon-key\n\n' +
+                    'Get your credentials from: https://app.supabase.com → Your Project → Settings → API'
+                );
+                console.error('Supabase configuration missing');
+                return;
+            }
+
+            const { data, error } = await supabase
+                .from('site_content')
+                .upsert({ section_name: sectionName, content: content }, { onConflict: 'section_name' })
+                .select();
+
+            if (error) {
+                console.error('Supabase error:', error);
+                throw error;
+            }
+
+            if (data) {
+                setSiteContent(prev => ({
+                    ...prev,
+                    [sectionName]: content
+                }));
+                alert('Content updated successfully!');
+            }
+        } catch (error) {
+            console.error('Error updating content:', error);
+            
+            // Provide more helpful error messages
+            let errorMessage = 'Error updating content: ';
+            if (error.message) {
+                errorMessage += error.message;
+            } else if (error.code) {
+                errorMessage += `Code: ${error.code}`;
+            } else {
+                errorMessage += 'Unknown error. Check console for details.';
+            }
+            
+            // Additional helpful message for common issues
+            if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
+                errorMessage += '\n\nPossible causes:\n' +
+                    '1. Supabase credentials not configured in .env file\n' +
+                    '2. Network connection issue\n' +
+                    '3. Image is too large (try compressing it first)\n' +
+                    '4. CORS issue (check Supabase settings)';
+            }
+            
+            alert(errorMessage);
         }
     };
 

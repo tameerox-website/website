@@ -27,14 +27,65 @@ export const FormTextArea = ({ label, value, onChange, rows = 4 }) => (
 );
 
 export const FormImageUpload = ({ label, value, onChange }) => {
-    const handleFileChange = (e) => {
+    const compressImage = (file, maxWidth = 800, maxHeight = 800, quality = 0.8) => {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    // Calculate new dimensions
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    if (width > maxWidth || height > maxHeight) {
+                        if (width > height) {
+                            height = (height * maxWidth) / width;
+                            width = maxWidth;
+                        } else {
+                            width = (width * maxHeight) / height;
+                            height = maxHeight;
+                        }
+                    }
+                    
+                    // Create canvas and compress
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Convert to base64 with compression
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                    resolve(compressedDataUrl);
+                };
+                img.onerror = () => resolve(e.target.result); // Fallback to original if compression fails
+                img.src = e.target.result;
+            };
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(file);
+        });
+    };
+
+    const handleFileChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                onChange(reader.result);
-            };
-            reader.readAsDataURL(file);
+            // Check file size (warn if > 2MB)
+            const fileSizeMB = file.size / (1024 * 1024);
+            if (fileSizeMB > 2) {
+                const proceed = confirm(
+                    `Image is large (${fileSizeMB.toFixed(1)}MB). ` +
+                    `It will be compressed automatically. Continue?`
+                );
+                if (!proceed) return;
+            }
+            
+            // Compress image before converting to base64
+            const compressedDataUrl = await compressImage(file);
+            if (compressedDataUrl) {
+                onChange(compressedDataUrl);
+            } else {
+                alert('Error processing image. Please try again.');
+            }
         }
     };
 
