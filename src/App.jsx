@@ -6,6 +6,7 @@ import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import BackToTop from './components/layout/BackToTop';
 import ScrollProgress from './components/layout/ScrollProgress';
+import WhatsAppButton from './components/layout/WhatsAppButton';
 
 // Lazy load pages for performance
 const Home = lazy(() => import('./pages/Home'));
@@ -42,6 +43,7 @@ function App() {
             </main>
             <Footer />
             <BackToTop />
+            <WhatsAppButton />
           </div>
         </Router>
       </HelmetProvider>
