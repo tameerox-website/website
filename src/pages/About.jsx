@@ -1,12 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Target, Eye, ShieldCheck, Users, Briefcase, Award } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import PageHero from '../components/layout/PageHero';
 import { useData } from '../contexts/DataContext';
 
+// Static fallback used whenever Supabase has no CEO photo (offline, misconfigured, or no upload yet)
+const FALLBACK_CEO_IMAGE = "/assets/ceo.jpg";
+
 const About = () => {
     const { siteContent = {}, loading = true } = useData() || {};
+    const [imgError, setImgError] = useState(false);
 
     // Default CEO Data (Fallback - only used if data is loaded and no CEO data exists)
     const defaultCEO = {
@@ -20,23 +24,23 @@ Under Kashif's leadership, Tameerox has grown into a reliable name for property 
 
 When he's not inspecting a terrace waterproofing job or consulting with a client, Kashif is mentoring emerging technicians, testing new construction technologies, or contributing to community development efforts in Qatar..`,
         quote: "We don't just build structures; we build trust and legacies that stand the test of time.",
-        image: "/assets/ceo.png"
+        image: FALLBACK_CEO_IMAGE
     };
 
     // Get CEO data - prefer database data, fallback to default only after loading completes
     // This prevents showing demo data while real data is being fetched
-    const ceo = (siteContent && siteContent['ceo_section']) 
-        ? siteContent['ceo_section'] 
+    const ceo = (siteContent && siteContent['ceo_section'])
+        ? siteContent['ceo_section']
         : defaultCEO;
-    
+
     // Only show CEO section after data has loaded (prevents flash of demo data)
     // Show if: data finished loading AND (we have CEO data OR we'll use the fallback)
     const showCeoSection = !loading;
-    
+
     // Add cache-busting to image URL to force browser to reload updated images
     // This ensures the latest image from admin panel is always displayed
     const getImageUrl = (imageUrl) => {
-        if (!imageUrl) return "/assets/ceo.png";
+        if (!imageUrl) return FALLBACK_CEO_IMAGE;
         // If it's a data URL (base64), return as-is (no cache busting needed)
         // Base64 images are already unique and will force reload when changed
         if (imageUrl.startsWith('data:')) return imageUrl;
@@ -51,11 +55,10 @@ When he's not inspecting a terrace waterproofing job or consulting with a client
         return `${imageUrl}${separator}v=${Math.abs(contentHash)}`;
     };
 
-    // Force re-render when CEO image changes to ensure updated image displays
+    // Reset image error state when the CEO image changes so a new upload can be retried
     useEffect(() => {
-        // This effect ensures the component updates when CEO data changes
-        // The dependency on ceo.image will trigger a re-render when image URL changes
-    }, [ceo?.image, siteContent]);
+        setImgError(false);
+    }, [ceo?.image]);
 
     // Scroll animation hook
     useEffect(() => {
@@ -156,27 +159,50 @@ When he's not inspecting a terrace waterproofing job or consulting with a client
                                     zIndex: 0,
                                     borderRadius: '50%'
                                 }}></div>
-                                <img
-                                    key={ceo.image || 'default-ceo'} // Force re-render when image changes
-                                    src={getImageUrl(ceo.image)}
-                                    alt={`${ceo.name} - CEO`}
-                                    style={{
+                                {!imgError ? (
+                                    <img
+                                        key={ceo.image} // Force re-render when image changes
+                                        src={getImageUrl(ceo.image)}
+                                        alt={`${ceo.name} - CEO`}
+                                        style={{
+                                            width: '100%',
+                                            maxWidth: '500px',
+                                            borderRadius: '4px',
+                                            boxShadow: 'var(--shadow-xl)',
+                                            position: 'relative',
+                                            zIndex: 1,
+                                            objectFit: 'cover',
+                                            aspectRatio: '4/5',
+                                            display: 'block',
+                                            margin: '0 auto'
+                                        }}
+                                        onError={(e) => {
+                                            // If even the static fallback photo fails to load, show a placeholder icon
+                                            if (e.target.src.endsWith(FALLBACK_CEO_IMAGE)) {
+                                                setImgError(true);
+                                            } else {
+                                                e.target.src = FALLBACK_CEO_IMAGE;
+                                            }
+                                        }}
+                                    />
+                                ) : (
+                                    <div style={{
                                         width: '100%',
                                         maxWidth: '500px',
+                                        aspectRatio: '4/5',
                                         borderRadius: '4px',
                                         boxShadow: 'var(--shadow-xl)',
                                         position: 'relative',
                                         zIndex: 1,
-                                        objectFit: 'cover',
-                                        aspectRatio: '4/5',
-                                        display: 'block',
-                                        margin: '0 auto'
-                                    }}
-                                    onError={(e) => {
-                                        // Fallback to default image if loaded image fails
-                                        e.target.src = "/assets/ceo.png";
-                                    }}
-                                />
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        margin: '0 auto',
+                                        background: '#E5E7EB'
+                                    }}>
+                                        <Users size={64} color="#9CA3AF" />
+                                    </div>
+                                )}
                             </div>
 
                             {/* Text Column */}
